@@ -1,0 +1,16 @@
+.navbar {
+    width: 100%;
+    position: fixed; /* Optional: keeps the navbar fixed at the top */
+    top: 0;
+    left: 0;
+    z-index: 1000; /* Optional: makes sure it sits on top of other content */
+  }
+  
+  .nav-link {
+    color: #000; /* Customize link color if needed */
+  }
+  
+  .nav-link.active {
+    font-weight: bold; /* Optional: style for active links */
+  }
+  
