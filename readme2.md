@@ -1,0 +1,1 @@
+This React e-comm app can be used to add products or customers, edit products or customers and delete products customers. It has an appealing home page and form validation and error handling for ease of use.

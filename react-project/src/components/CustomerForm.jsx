@@ -40,7 +40,7 @@ const CustomerForm = () => {
         const formErrors = validateForm();
         if (Object.keys(formErrors).length === 0) {
             setIsLoading(true);
-            setErrors(null);
+            setErrors({});
 
             const customerData = {
                 name: name.trim(),
@@ -55,6 +55,7 @@ const CustomerForm = () => {
                         console.log('Update successful');
                         setIsLoading(false);
                         setShowSuccessModal(true);
+                        console.log("++++++ showSuccessModal", showSuccessModal);
                     })
                     .catch(error => {
                         console.error('Error updating customer:', error);
@@ -76,6 +77,7 @@ const CustomerForm = () => {
             }
         } else {
             setErrors(formErrors);
+            console.log("++++++ Errors", errors);
         }
     };
 
