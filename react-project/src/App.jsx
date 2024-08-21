@@ -7,6 +7,8 @@ import ProductList from './components/ProductList';
 import ProductForm from './components/ProductForm';
 import { Route, Routes, BrowserRouter } from 'react-router-dom';
 import Home from './components/Home';
+import OrderForm from './components/OrderForm';
+import GetOrderDetails from './components/GetOrderDetails';
 
 
 function App() {
@@ -22,6 +24,8 @@ function App() {
         <Route path="/customers" element={<CustomerList />} />
         <Route path="/add-customer" element={<CustomerForm />} />
         <Route path="/edit-customers/:customerId" element={<CustomerForm />} />
+        <Route path="/create-order" element={<OrderForm />} />"
+        <Route path="/retrieve-order" element={<GetOrderDetails />} />
       </Routes>
     </>
   )

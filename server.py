@@ -29,12 +29,34 @@ class ProductSchema(ma.Schema):
     class Meta:
         fields = ('id', 'product_name', 'price')
 
+class OrderSchema(ma.Schema):
+    id = fields.Integer(required= False)
+    order_date = fields.Date(required= False)
+    customer_id = fields.Float(required= True)
+
+    class Meta:
+        fields = ('id', 'order_date', 'customer_id')
+
+class OrderProductSchema(ma.Schema):
+    order_id = fields.Integer(required= False)
+    product_id = fields.Integer(required= False)
+
+    class Meta:
+        fields = ('order_id', 'product_id')
+
 
 customer_schema = CustomerSchema()
 customers_schema = CustomerSchema(many=True)
 
 product_schema = ProductSchema()
 products_schema = ProductSchema(many= True)
+
+order_schema = OrderSchema()
+orders_schema = OrderSchema(many= True)
+
+order_product_schema = OrderProductSchema()
+order_product_schema = OrderProductSchema(many= True)
+
 
 # Database connection parameters
 db_name = "ecom"
@@ -421,6 +443,93 @@ def delete_product(id):
             cursor.close()
             conn.close()
 
+#===============CRUD for Orders==========#
+
+# get a single order
+@app.route('/orders/<int:customer_id>', methods=['GET'])
+def get_orders_by_customer(customer_id):
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Database connection failed"}), 500
+        cursor = conn.cursor(dictionary=True)
+        query = "SELECT * FROM orders WHERE customer_id = %s"
+        cursor.execute(query, (customer_id,))
+        orders = cursor.fetchall()
+        return jsonify(orders)
+    
+    except Error as e:
+        print(f"Error: {e}")
+        return jsonify({"error": "Internal Server Error"}), 500
+    
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
+
+# add an order
+@app.route('/orders', methods=['POST'])
+def add_order():
+    try:
+        # Extract order-related data
+        order_date = request.json.get('order_date', [])
+        customer_id = request.json.get('customer_id', [])
+        
+        # Validate order data using OrderSchema
+        order_data = order_schema.load({
+            'order_date': order_date,
+            'customer_id': customer_id
+        })
+        print("Order data", order_data)
+
+        # Extract and validate product-related data
+        product_ids = request.json.get('product_ids', [])
+        order_products_data = [{'product_id': pid} for pid in product_ids]
+        order_product_schema.load(order_products_data, many=True)
+        print("Order product data", order_products_data)
+ 
+    except ValidationError as e:
+        print(f"Error: {e}")
+        return jsonify(e.messages), 400
+
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Database connection failed"}), 500
+        cursor = conn.cursor()
+
+        # New order details
+        new_order = (order_data['order_date'], order_data['customer_id'])
+
+        # SQL query to add new order
+        query = "INSERT INTO orders (order_date, customer_id) VALUES (%s, %s)"
+
+        # Executing the query
+        cursor.execute(query, new_order)
+        order_id = cursor.lastrowid #retrieve id of newly inserted order
+
+        for product_id in order_products_data:
+            new_order_product = (order_id, product_id)
+            query = "INSERT INTO order_products (order_id, product_id) VALUES (%s, %s)"
+            cursor.execute(query, new_order_product)
+
+        conn.commit()
+
+        # Successful addition of the new order
+        return jsonify({"message": "New order created successfully", "order_id": order_id}), 201
+
+    except Error as e:
+        print(f"Error: {e}")
+        return jsonify({"error": "Internal Server Error"}), 500
+
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
+

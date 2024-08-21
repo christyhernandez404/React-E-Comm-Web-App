@@ -27,6 +27,12 @@ function NavigationBar() {
                 <Nav.Link as={NavLink} to="/add-customer" activeClassname="active">
                     Add Customer
                 </Nav.Link>
+                <Nav.Link as={NavLink} to="/create-order" activeClassname="active">
+                    Submit Order
+                </Nav.Link>
+                <Nav.Link as={NavLink} to="/retrieve-order" activeClassname="active">
+                    Get Order Details
+                </Nav.Link>
             </Nav>
         </Navbar.Collapse>
     </Navbar>
